@@ -1,0 +1,218 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{parskip}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+
+\geometry{margin=2.5cm}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small Analyse des Réseaux Sociaux}
+\lhead{\small Royal Air Maroc — Étude de diffusion}
+\cfoot{\thepage}
+
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries}{}{0em}{}
+
+\title{
+    \vspace{-1cm}
+    \textbf{Analyse des Réseaux Sociaux} \\[0.4em]
+    \large Étude de la diffusion d'une plainte virale \\
+    contre Royal Air Maroc (RAM) sur Instagram
+}
+\author{}
+\date{}
+
+% ----------------------------------------------------------------
+\begin{document}
+
+\maketitle
+\thispagestyle{fancy}
+
+% ----------------------------------------------------------------
+\section{Contexte et Problématique}
+
+Une actrice marocaine, personnalité publique disposant d'une large communauté de
+\textit{followers} sur Instagram, a été victime d'un incident de surbooking avec la
+compagnie Royal Air Maroc (RAM). Face à cette expérience négative, elle a choisi de
+partager son mécontentement publiquement via un \textit{Reel} Instagram, déclenchant
+une vague de réactions au sein de son réseau.
+
+L'objectif de ce travail est d'étudier la \textbf{dynamique de diffusion} de cette
+information au sein du réseau social, en mobilisant deux cadres théoriques :
+la \textbf{théorie des réseaux sociaux} et la \textbf{théorie de la diffusion de
+l'information}.
+
+% ----------------------------------------------------------------
+\section{Méthodologie}
+
+\subsection{Collecte des données}
+
+Les données ont été collectées via un \textit{scraper} développé en Python, utilisant la
+bibliothèque \textbf{Playwright} pour intercepter les appels internes de l'API Instagram.
+La collecte a ciblé l'ensemble des commentaires et réponses du Reel publié.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Indicateur} & \textbf{Valeur} \\
+\midrule
+Commentaires collectés  & 846 \\
+Utilisateurs uniques    & 733 \\
+Fils de réponses        & 32 \\
+Total des réponses      & 74 \\
+Période d'activité      & Novembre 2024 -- Janvier 2026 \\
+\bottomrule
+\end{tabular}
+\caption{Statistiques du corpus collecté}
+\end{table}
+
+\subsection{Construction du réseau}
+
+Le réseau a été construit sous forme de \textbf{graphe orienté} (\textit{DiGraph})
+avec la bibliothèque \textbf{NetworkX}, en définissant :
+
+\begin{itemize}
+    \item Un \textbf{nœud} par utilisateur ayant commenté
+    \item Une \textbf{arête de commentaire} : utilisateur $\rightarrow$ post
+    \item Une \textbf{arête de réponse} : utilisateur A $\rightarrow$ utilisateur B
+          (quand A répond à B)
+    \item Une \textbf{arête de mention} : utilisateur A $\rightarrow$ utilisateur B
+          (quand A mentionne @B dans son texte)
+\end{itemize}
+
+La détection des communautés a été réalisée via l'algorithme de \textbf{Louvain}.
+
+% ----------------------------------------------------------------
+\section{Résultats}
+
+\subsection{Structure globale du réseau}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Métrique} & \textbf{Valeur} \\
+\midrule
+Nœuds (utilisateurs)   & 758 \\
+Arêtes (interactions)  & 802 \\
+Densité                & 0,0014 \\
+Composantes connexes   & 1 \\
+Nombre de communautés  & 20 \\
+\bottomrule
+\end{tabular}
+\caption{Métriques globales du réseau}
+\end{table}
+
+La densité extrêmement faible ($d = 0{,}0014$) indique un réseau \textbf{très peu
+interconnecté} : la majorité des utilisateurs n'interagissent pas entre eux et se
+contentent de commenter sans engager de dialogue.
+
+\subsection{Leaders d'opinion et centralité}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Utilisateur} & \textbf{Degré} & \textbf{Betweenness} & \textbf{In-degree} \\
+\midrule
+sa\_na\_jabrane    & 0,0132 & 0,0027 & 8 \\
+getfitwith\_hala   & 0,0079 & 0,0105 & 5 \\
+saadiataznacht     & 0,0079 & 0,0026 & — \\
+une\_maman3        & 0,0066 & 0,0053 & 4 \\
+\bottomrule
+\end{tabular}
+\caption{Principaux acteurs du réseau selon les métriques de centralité}
+\end{table}
+
+\texttt{sa\_na\_jabrane} est le nœud le plus sollicité (in-degree = 8),
+tandis que \texttt{getfitwith\_hala} est le \textbf{pont principal} entre les
+communautés (betweenness le plus élevé : 0,0105).
+
+\subsection{Structure des communautés}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Communauté} & \textbf{Taille} & \textbf{Membres clés} \\
+\midrule
+0 (passive)  & 680 & Commentateurs isolés \\
+11 (active)  & 20  & sa\_na\_jabrane, saadiataznacht, naddoustyle \\
+9            & 7   & farah\_faress\_usa, ouafa\_paffa \\
+1            & 6   & oudasa4, drissamkh \\
+10           & 6   & getfitwith\_hala, lys\_blanche\_1 \\
+\bottomrule
+\end{tabular}
+\caption{Principales communautés détectées par l'algorithme de Louvain}
+\end{table}
+
+% ----------------------------------------------------------------
+\section{Analyse Théorique}
+
+\subsection{Théorie des Réseaux Sociaux}
+
+La structure du réseau révèle un modèle \textbf{hub-and-spoke} : l'actrice constitue
+le hub central, et les utilisateurs gravitent autour d'elle sans former de liens denses
+entre eux. On observe :
+
+\begin{itemize}
+    \item Des \textbf{leaders d'opinion}  qui concentrent les échanges et orientent le débat.
+    \item Des \textbf{liens faibles dominants}  : la majorité des
+          interactions sont uniques et non répétées, limitant la profondeur de la
+          diffusion.
+    \item Une \textbf{structure communautaire fragmentée} : 90\,\% des utilisateurs
+          (680/759) appartiennent à une communauté passive sans interactions réelles.
+\end{itemize}
+
+
+
+% ----------------------------------------------------------------
+\section{Conclusion}
+
+L'analyse des métriques du réseau permet de conclure que la plainte de l'actrice a
+généré une \textbf{réaction significative mais superficielle}. L'information a touché
+près de 733 utilisateurs uniques sur une période de 14 mois, ce qui témoigne d'une
+portée initiale réelle.
+
+Cependant, la faible densité du réseau ($d = 0{,}0014$), le faible taux de réponses
+(74 pour 846 commentaires) et l'absence de ponts puissants entre communautés indiquent
+que la diffusion ne s'est pas transformée en cascade informationnelle. La compagnie RAM
+a subi une \textbf{pression réputationnelle à court terme}, circonscrite à la communauté
+de \textit{followers} de l'actrice, sans propagation vers des réseaux plus larges.
+
+Ce travail illustre que la viralité d'un contenu dépend moins de la qualité du message
+que de la \textbf{structure du réseau} dans lequel il circule.
+
+% ----------------------------------------------------------------
+\begin{thebibliography}{9}
+
+\bibitem{granovetter1973}
+Granovetter, M. (1973).
+\textit{The Strength of Weak Ties}.
+American Journal of Sociology, 78(6), 1360--1380.
+
+\bibitem{rogers1962}
+Rogers, E. M. (1962).
+\textit{Diffusion of Innovations}.
+Free Press, New York.
+
+\bibitem{newman2010}
+Newman, M. E. J. (2010).
+\textit{Networks: An Introduction}.
+Oxford University Press.
+
+\end{thebibliography}
+
+\end{document}
